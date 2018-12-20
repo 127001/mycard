@@ -1,6 +1,6 @@
 {
   "name": "mycard",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A way to make personal business cards",
   "main": "index.js",
   "bin": {

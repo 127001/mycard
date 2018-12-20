@@ -14,6 +14,15 @@ let options = {
 };
 
 let url = process.argv[2];
+
+if (!url.startsWith('http://') && !url.startsWith('https://')) {
+  url = `https://${url}`;
+}
+
+if (url.endsWith('/')) {
+  url = url.slice(0, url.length - 1)
+}
+
 let cardUrl = url + '/card.json';
 
 request.get({ url: cardUrl, json: true, timeout: 5000 }, function (err, resp, body) {
