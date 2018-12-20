@@ -33,12 +33,12 @@ request.get({ url: cardUrl, json: true, timeout: 5000 }, function (err, resp, bo
 
 // Convert normal card.json data into chalk colors
 function buildCardData(data, url) {
-  let footerLabel = chalk.white.bold('Card');
+  let footerLabel = chalk.white.bold('Card:');
   let footerContent = chalk.white(`npx mycard ${url}`);
 
   let cardData = {
     header: `${chalk.white(data.name)} / ${chalk.cyan(data.handle)}`,
-    footer: `      ${footerLabel}: ${footerContent}`
+    footer: `      ${footerLabel} ${footerContent}`
   };
 
   if (data.items) {
