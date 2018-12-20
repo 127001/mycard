@@ -2,44 +2,52 @@
 // 👆 Used to tell Node.js that this is a CLI tool
 
 // Pull in our modules
-var chalk = require('chalk')
-var boxen = require('boxen')
+const chalk = require('chalk')
+const boxen = require('boxen')
+const request = require('request');
 
 // Define options for Boxen
 let options = {
   padding: 1,
   margin: 1,
   borderStyle: 'round'
+};
+
+let url = process.argv[2];
+let cardUrl = url + '/card.json';
+
+request.get({ url: cardUrl, json: true, timeout: 5000 }, function (err, resp, body) {
+  let cardData = buildCardData(body, url);
+  let output = buildOutput(cardData);
+  console.log(output);
+});
+
+// Convert normal card.json data into chalk colors
+function buildCardData(data, url) {
+  let footerLabel = chalk.white.bold('Card');
+  let footerContent = chalk.white(`npx mycard ${url}`);
+
+  let cardData = {
+    header: `${chalk.white(data.name)} / ${chalk.cyan(data.handle)}`,
+    footer: `      ${footerLabel}: ${footerContent}`
+  };
+
+  if (data.items) {
+    cardData.items = data.items.map((item) => {
+      let label = chalk.white.bold(`${item.label}:`.padStart(11, ' '));
+      let content = chalk.white(item.content);
+      return `${label}  ${content}`;
+    });
+  }
+
+  return cardData;
 }
-// Text + chalk definitions
-let data = {
-  'name': chalk.white('Mikeal Rogers /'),
-  'handle': chalk.cyan('mikeal'),
-  'work': chalk.white('Doing many things at Protocol Labs'),
-  'twitter': chalk.cyan('https://twitter.com/mikeal'),
-  'github': chalk.cyan('https://github.com/mikeal'),
-  'linkedin': chalk.cyan('https://linkedin.com/in/mikealrogers'),
-  'web': chalk.cyan('https://www.mikealrogers.com'),
-  'npx': chalk.white('npx mikeal'),
-  'labelWork': chalk.white.bold('      Work:'),
-  'labelTwitter': chalk.white.bold('   Twitter:'),
-  'labelGitHub': chalk.white.bold('    GitHub:'),
-  'labelLinkedIn': chalk.white.bold('  LinkedIn:'),
-  'labelWeb': chalk.white.bold('       Web:'),
-  'labelCard': chalk.white.bold('      Card:')
+
+function buildOutput(lines) {
+  let content = lines.header +
+    '\n\n' +
+    lines.items.join('\n') +
+    '\n\n' +
+    lines.footer;
+  return chalk.green(boxen(content, options));
 }
-
-// Actual strings we're going to output
-var newline = '\n'
-var heading = `${data.name} ${data.handle}`
-var working = `${data.labelWork}  ${data.work}`
-var twittering = `${data.labelTwitter}  ${data.twitter}`
-var githubing = `${data.labelGitHub}  ${data.github}`
-var linkedining = `${data.labelLinkedIn}  ${data.linkedin}`
-var webing = `${data.labelWeb}  ${data.web}`
-var carding = `${data.labelCard}  ${data.npx}`
-
-// Put all our output together into a single variable so we can use boxen effectively
-let output = heading + newline + newline + working + newline + twittering + newline + githubing + newline + linkedining + newline + webing + newline + newline + carding
-
-console.log(chalk.green(boxen(output, options)))
